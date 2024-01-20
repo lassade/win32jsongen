@@ -49,10 +49,21 @@ namespace JsonWin32Generator
                 }
             }
 
+            this.IsNativeTypedef = false;
+            foreach (CustomAttributeHandle attrHandle in def.GetCustomAttributes())
+            {
+                if (CustomAttr.Decode(mr, attrHandle) is CustomAttr.Const.NativeTypedef)
+                {
+                    this.IsNativeTypedef = true;
+                    break;
+                }
+            }
+
             this.RefInfo = new TypeRefInfo(
                 ApiName: apiName,
                 Name: name,
                 Fqn: fqn,
+                IsNativeTypedef: this.IsNativeTypedef,
                 ParentTypeQualifier: (enclosingType == null) ? ParentTypeQualifier.Root : enclosingType.ParentTypeQualifier.Add(name),
                 TypeRefTargetKind: typeRefTargetKind);
         }
@@ -83,6 +94,8 @@ namespace JsonWin32Generator
         internal NamespaceAndName BaseTypeName { get; }
 
         internal TypeRefKind TypeRefTargetKind { get => this.RefInfo.TypeRefTargetKind; }
+
+        internal bool IsNativeTypedef { get; }
 
         internal bool IsNested
         {
@@ -199,6 +212,7 @@ namespace JsonWin32Generator
         string ApiName,
         string Name,
         string Fqn,
+        bool IsNativeTypedef,
         ParentTypeQualifier ParentTypeQualifier,
         TypeGenInfo.TypeRefKind TypeRefTargetKind);
 
