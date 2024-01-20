@@ -6,6 +6,7 @@ namespace JsonWin32Generator
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -172,6 +173,26 @@ namespace JsonWin32Generator
                 writer.Untab();
                 writer.WriteLine("]{0}", suffix);
             }
+        }
+
+        private static string CamelToSnake(string camelString)
+        {
+            int i = 0;
+            StringBuilder paramNameSnake = new StringBuilder();
+            foreach (char x in camelString)
+            {
+                if (i > 0 && char.IsUpper(x))
+                {
+                    paramNameSnake.Append('_');
+                    paramNameSnake.Append(char.ToLower(x, CultureInfo.InvariantCulture));
+                }
+                else
+                {
+                    paramNameSnake.Append(char.ToLower(x, CultureInfo.InvariantCulture));
+                }
+                i += 1;
+            }
+            return paramNameSnake.ToString();
         }
 
         private void GenerateApi(TabWriter writer, ApiPatch apiPatch, Api api)
@@ -1103,7 +1124,7 @@ namespace JsonWin32Generator
                 }
 
                 string attrs = string.Join(",", jsonAttributes);
-                writer.WriteLine($"{paramFieldPrefix}{{\"Name\":\"{paramName}\",\"Type\":{paramType.ToJson()},\"Attrs\":[{attrs}]}}");
+                writer.WriteLine($"{paramFieldPrefix}{{\"Name\":\"{CamelToSnake(paramName)}\",\"Type\":{paramType.ToJson()},\"Attrs\":[{attrs}]}}");
                 paramFieldPrefix = ",";
                 count += 1;
             }
