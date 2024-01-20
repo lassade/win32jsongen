@@ -20,6 +20,7 @@ namespace JsonWin32Generator
             this.Def = def;
             this.ApiNamespace = apiNamespace;
             this.EnclosingType = enclosingType;
+            this.IsNativeTypedef = false;
 
             Enforce.Data(def.GetDeclarativeSecurityAttributes().Count == 0);
             Enforce.Data(def.GetEvents().Count == 0);
@@ -47,9 +48,13 @@ namespace JsonWin32Generator
                 {
                     typeRefTargetKind = TypeRefKind.Default;
                 }
+
+                if (this.BaseTypeName == new NamespaceAndName("System", "Enum"))
+                {
+                    this.IsNativeTypedef = true;
+                }
             }
 
-            this.IsNativeTypedef = false;
             foreach (CustomAttributeHandle attrHandle in def.GetCustomAttributes())
             {
                 if (CustomAttr.Decode(mr, attrHandle) is CustomAttr.Const.NativeTypedef)
